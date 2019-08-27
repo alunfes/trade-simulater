@@ -239,8 +239,7 @@ class SimAccount:
         sum_diff = 0
         for i in range(len(base_line)):
             sum_diff += (base_line[i] - self.performance_total_pl_log[i]) ** 2
-        self.pl_stability = round(1.0 / ((sum_diff ** 0.5) * self.total_pl / float(len(self.performance_total_pl_log))),
-                                  4)
+        self.pl_stability = round(1.0 / ((sum_diff ** 0.5) * self.total_pl / float(len(self.performance_total_pl_log))),4)
 
     def __add_log(self, log, i, dt):
         self.total_pl_log.append(self.total_pl)

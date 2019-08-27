@@ -38,13 +38,12 @@ class Sim:
 
 
 if __name__ == '__main__':
-    num_term = 100
-    window_term = 10
+    num_term = 10
     future_side_period = 30
     initial_data_vol = 30000
-    OneMinMarketData.initialize_for_bot(num_term, window_term, future_side_period, initial_data_vol)
+    OneMinMarketData.initialize_for_bot(num_term, future_side_period, initial_data_vol)
     df = OneMinMarketData.generate_df()
     ac = SimAccount()
     sim = Sim()
-    ac = sim.sim_ema_gra_trend_follow_opt(df, 500, OneMinMarketData.term_list, ac)
+    ac = sim.sim_ema_trend_follow_period(df, 500, OneMinMarketData.term_list, ac)
     print('total pl={},num trade={},win rate={}, pl_stability={}, num_buy={}, num_sell={}'.format(ac.total_pl,ac.num_trade,ac.win_rate, ac.pl_stability, ac.num_buy,ac.num_sell))

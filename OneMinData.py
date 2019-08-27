@@ -48,6 +48,8 @@ class OneMinData:
         self.macd_ave = {}
         self.macdsignal_ave = {}
         self.macdhist_ave = {}
+        self.various_makairi = {}
+        self.various_diff = {}
 
         self.normalized_ave_true_range = []
         self.three_outside_updown = []
@@ -64,6 +66,9 @@ class OneMinData:
         self.hist_high_change = {}
         self.hist_low_change = {}
 
+        self.bp = [] #0 or 1
+        self.sp = [] #0 or 1
+
     def cut_data(self, num_data):
         self.unix_time = self.unix_time[-num_data:]
         self.dt = self.dt[-num_data:]
@@ -73,6 +78,10 @@ class OneMinData:
         self.close = self.close[-num_data:]
         self.size = self.size[-num_data:]
         self.ave_price = self.ave_price[-num_data:]
+        for k in self.various_makairi:
+            self.various_makairi[k] = self.various_makairi[k][-num_data:]
+        for k in self.various_diff:
+            self.various_diff[k] = self.various_diff[k][-num_data:]
         for k in self.ema:  # assume term is same in all index except macd
             self.ema_kairi[k] = self.ema_kairi[k][-num_data:]
             self.ema_gra[k] = self.ema_gra[k][-num_data:]
@@ -129,6 +138,9 @@ class OneMinData:
         self.sar = self.sar[-num_data:]
         self.bop = self.bop[-num_data:]
 
+        self.bp = self.bp[-num_data:]
+        self.sp = self.sp[-num_data:]
+
     def del_data(self, num_remain_data):
         if len(self.unix_time) > num_remain_data:
             del self.unix_time[:-num_remain_data]
@@ -139,6 +151,10 @@ class OneMinData:
             del self.close[:-num_remain_data]
             del self.size[:-num_remain_data]
             del self.ave_price[:-num_remain_data]
+            for k in self.various_makairi:
+                self.various_makairi[k] = self.various_makairi[k][:-num_remain_data]
+            for k in self.various_diff:
+                self.various_diff[k] = self.various_diff[k][:-num_remain_data]
             for k in self.ema:  # assume term is same in all index
                 del self.ema_kairi[k][:-num_remain_data]
                 del self.ema_gra[k][:-num_remain_data]
@@ -205,6 +221,10 @@ class OneMinData:
             del self.close[-ex_from:-to]
             del self.size[-ex_from:-to]
             del self.ave_price[-ex_from:-to]
+            for k in self.various_makairi:
+                self.various_makairi[k] = self.various_makairi[k][-ex_from:-to]
+            for k in self.various_diff:
+                self.various_diff[k] = self.various_diff[k][-ex_from:-to]
             for k in self.ema:  # assume term is same in all index
                 del self.ema_kairi[k][-ex_from:-to]
                 del self.ema_gra[k][-ex_from:-to]

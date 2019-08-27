@@ -9,11 +9,12 @@ import pandas as pd
 class OneMinMarketData:
 
     @classmethod
-    def initialize_for_bot(cls, num_term, future_side_period, initial_data_vol):
+    def initialize_for_bot(cls, num_term, pt, lc, initial_data_vol):
         #    def initialize_for_bot(cls, num_term, window_term, future_side_period, future_side_kijun, ex_from, to):
         cls.num_term = num_term
         cls.term_list = cls.generate_term_list(num_term)
-        cls.future_side_period = future_side_period
+        cls.pt = pt
+        cls.lc = lc
         cls.ohlc = cls.read_from_csv('./Data/one_min_data.csv')
         cls.ohlc.del_data(initial_data_vol)
         #        cls.ohlc.extract_data(ex_from, to)
@@ -77,14 +78,11 @@ class OneMinMarketData:
             cls.ohlc.cci[term] = cls.calc_cci(term, cls.ohlc.high, cls.ohlc.low, cls.ohlc.close)
             cls.ohlc.dx[term] = cls.calc_dx(term, cls.ohlc.high, cls.ohlc.low, cls.ohlc.close)
             if term >= 10:
-                cls.ohlc.macd[term], cls.ohlc.macdsignal[term], cls.ohlc.macdhist[term] = cls.calc_macd(
-                    cls.ohlc.close, int(float(term) / 2.0), term, int(float(term) / 3.0))
+                cls.ohlc.macd[term], cls.ohlc.macdsignal[term], cls.ohlc.macdhist[term] = cls.calc_macd(cls.ohlc.close, int(float(term) / 2.0), term, int(float(term) / 3.0))
                 cls.ohlc.macd[term] = list(cls.ohlc.macd[term])
                 cls.ohlc.macdsignal[term] = list(cls.ohlc.macdsignal[term])
                 cls.ohlc.macdhist[term] = list(cls.ohlc.macdhist[term])
-                cls.ohlc.macd_ave[term], cls.ohlc.macdsignal_ave[term], cls.ohlc.macdhist_ave[
-                    term] = cls.calc_macd(cls.ohlc.ave_price, int(float(term) / 2.0), term,
-                                          int(float(term) / 3.0))
+                cls.ohlc.macd_ave[term], cls.ohlc.macdsignal_ave[term], cls.ohlc.macdhist_ave[term] = cls.calc_macd(cls.ohlc.ave_price, int(float(term) / 2.0), term,int(float(term) / 3.0))
                 cls.ohlc.macd_ave[term] = list(cls.ohlc.macd_ave[term])
                 cls.ohlc.macdsignal_ave[term] = list(cls.ohlc.macdsignal_ave[term])
                 cls.ohlc.macdhist_ave[term] = list(cls.ohlc.macdhist_ave[term])
@@ -106,6 +104,38 @@ class OneMinMarketData:
                                                                                             cls.ohlc.close)
         cls.ohlc.sar = cls.calc_sar(cls.ohlc.high, cls.ohlc.low, 0.02, 0.2)
         cls.ohlc.bop = cls.calc_bop(cls.ohlc.open, cls.ohlc.high, cls.ohlc.low, cls.ohlc.close)
+
+        #generate various index
+        for term in cls.term_list:
+            cls.ohlc.various_makairi['emakairi'+str(term)] = cls.ohlc.ema_kairi[term]
+            cls.ohlc.various_makairi['demakairi' + str(term)] = cls.ohlc.dema_kairi[term]
+            cls.ohlc.various_diff['emadiff'+str(term)] = cls.ohlc.ema_kairi[term]
+            cls.ohlc.various_diff['demadiff' + str(term)] = cls.ohlc.dema_kairi[term]
+            cls.ohlc.various_makairi['momkairi' + str(term)] = cls.ohlc.momentum[term]
+            cls.ohlc.various_diff['momdiff' + str(term)] = cls.ohlc.momentum[term]
+            cls.ohlc.various_makairi['rsikairi' + str(term)] = cls.ohlc.rsi[term]
+            cls.ohlc.various_diff['rsidiff' + str(term)] = cls.ohlc.rsi[term]
+            cls.ohlc.various_makairi['williams_Rkairi' + str(term)] = cls.ohlc.williams_R[term]
+            cls.ohlc.various_diff['williams_Rdiff' + str(term)] = cls.ohlc.williams_R[term]
+            cls.ohlc.various_makairi['betakairi' + str(term)] = cls.ohlc.beta[term]
+            cls.ohlc.various_diff['betadiff' + str(term)] = cls.ohlc.beta[term]
+            cls.ohlc.various_makairi['linear_regkairi' + str(term)] = cls.ohlc.linear_reg[term]
+            cls.ohlc.various_diff['linear_regdiff' + str(term)] = cls.ohlc.linear_reg[term]
+            cls.ohlc.various_makairi['linear_reg_slopekairi' + str(term)] = cls.ohlc.linear_reg_slope[term]
+            cls.ohlc.various_diff['linear_reg_slopediff' + str(term)] = cls.ohlc.linear_reg_slope[term]
+            cls.ohlc.various_makairi['adxkairi' + str(term)] = cls.ohlc.adx[term]
+            cls.ohlc.various_diff['adxdiff' + str(term)] = cls.ohlc.adx[term]
+            cls.ohlc.various_makairi['aroon_oskairi' + str(term)] = cls.ohlc.aroon_os[term]
+            cls.ohlc.various_diff['aroon_osdiff' + str(term)] = cls.ohlc.aroon_os[term]
+            cls.ohlc.various_makairi['ccikairi' + str(term)] = cls.ohlc.cci[term]
+            cls.ohlc.various_diff['ccidiff' + str(term)] = cls.ohlc.cci[term]
+            if term >= 10:
+                cls.ohlc.various_makairi['macdkairi' + str(term)] = cls.ohlc.macd[term]
+                cls.ohlc.various_diff['macddiff' + str(term)] = cls.ohlc.macd[term]
+                cls.ohlc.various_makairi['macdsignalkairi' + str(term)] = cls.ohlc.macdsignal[term]
+                cls.ohlc.various_diff['macdsignaldiff' + str(term)] = cls.ohlc.macdsignal[term]
+                cls.ohlc.various_makairi['macdhistkairi' + str(term)] = cls.ohlc.macdhist[term]
+                cls.ohlc.various_diff['macdhistdiff' + str(term)] = cls.ohlc.macdhist[term]
         print('calc all index1 time={}'.format(time.time() - start_time))
 
     @classmethod
@@ -113,7 +143,6 @@ class OneMinMarketData:
         def __change_dict_key(d, col_name):
             newd = dict(map(lambda k: (col_name + str(k), d[k][:]), d.keys()))
             return newd
-
         '''data_dict = {'dt':cls.ohlc.dt[:], 'open':cls.ohlc.open[:], 'high':cls.ohlc.high[:],'low':cls.ohlc.low[:],
                     'close':cls.ohlc.close[:], 'size':cls.ohlc.size[:], 'normalized_ave_true_range':cls.ohlc.normalized_ave_true_range[:],
                     'sar':cls.ohlc.sar[:],'bop':cls.ohlc.bop[:]}'''
@@ -160,7 +189,9 @@ class OneMinMarketData:
                      **__change_dict_key(cls.ohlc.macdhist, 'macdhist'),
                      **__change_dict_key(cls.ohlc.macd_ave, 'macd_ave'),
                      **__change_dict_key(cls.ohlc.macdsignal_ave, 'macdsignal_ave'),
-                     **__change_dict_key(cls.ohlc.macdhist_ave, 'macdhist_ave')}
+                     **__change_dict_key(cls.ohlc.macdhist_ave, 'macdhist_ave'),
+                     ** __change_dict_key(cls.ohlc.various_makairi, 'various_makairi'),
+                     **__change_dict_key(cls.ohlc.various_diff, 'various_diff')}
         df = pd.DataFrame.from_dict(data_dict)
         return df
 
@@ -177,7 +208,7 @@ class OneMinMarketData:
 
         start_time = time.time()
         cut_size = cls.term_list[-1] * 2
-        end = len(cls.ohlc.close) - cls.future_side_period
+        end = len(cls.ohlc.close) - 700 #remove last 700min data as future bp / sp maybe not precise in
         data_dict = {'dt': cls.ohlc.dt[cut_size:end], 'open': cls.ohlc.open[cut_size:end],
                      'high': cls.ohlc.high[cut_size:end], 'low': cls.ohlc.low[cut_size:end],
                      'close': cls.ohlc.close[cut_size:end], 'size': cls.ohlc.size[cut_size:end],
@@ -225,7 +256,9 @@ class OneMinMarketData:
                      **__change_dict_key(cls.ohlc.macdhist, 'macdhist'),
                      **__change_dict_key(cls.ohlc.macd_ave, 'macd_ave'),
                      **__change_dict_key(cls.ohlc.macdsignal_ave, 'macdsignal_ave'),
-                     **__change_dict_key(cls.ohlc.macdhist_ave, 'macdhist_ave')}
+                     **__change_dict_key(cls.ohlc.macdhist_ave, 'macdhist_ave'),
+                     **__change_dict_key(cls.ohlc.various_makairi, 'various_makairi'),
+                     **__change_dict_key(cls.ohlc.various_diff, 'various_diff')}
         df = pd.DataFrame.from_dict(data_dict)
         return df
 
@@ -238,6 +271,48 @@ class OneMinMarketData:
         term_list.extend(list(np.round(np.linspace(category_n[1] + (category_n[0] * num), category_n[1] + (category_n[0] * num) + category_n[1] * num), num)))
         term_list.extend(list(np.round(np.linspace(category_n[2] + (category_n[1] * num),category_n[2] + (category_n[1] * num) + category_n[2] * num), num)))
         return list(map(int, term_list))
+
+
+    @classmethod
+    def generate_makairi(cls, data, ma_term):
+        ma = list(ta.MA(np.array(data, dtype='f8'), timeperiod=ma_term))
+        return list(map(lambda c, e: (c - e) / e, data, ma))
+
+    @classmethod
+    def generate_diff(cls, data):
+        return cls.calc_rate_of_change(1,data)
+
+
+    #points of long can get pt before lc and vice versa
+    @classmethod
+    def calc_pl_ls_points(cls):  # both pl and ls should be plus val as abs
+        buy_points = []
+        sell_points = []
+        for i in range(len(cls.ohlc.close)):
+            flg_buy = True
+            flg_sell = True
+            entry_p = cls.ohlc.open[i]
+            j = 0
+            while flg_buy or flg_sell:
+                if i + j < len(cls.ohlc.close):
+                    if -cls.lc >= cls.ohlc. #lc before pt for buy
+
+
+                    if -ls >= cls.ohlc.close[i + j] - entry_p:  # check buy ls
+                        flg_buy = False
+                    if pl <= ohlc.close[i + j] - entry_p:  # check buy pl
+                        buy_points.append(i)
+                        flg_buy = False
+                    if -ls >= entry_p - ohlc.close[i + j]:  # check sell ls
+                        flg_sell = False
+                    if pl <= entry_p - ohlc.close[i + j]:  # check sell pl
+                        sell_points.append(i)
+                        flg_sell = False
+                else:
+                    break
+                j += 1
+        return buy_points, sell_points
+
 
     @classmethod
     def calc_hist_high(cls, term, high, close):
@@ -440,3 +515,12 @@ class OneMinMarketData:
                 return i
         print('no matche index found!')
         return -1
+
+
+if __name__ == '__main__':
+    num_term = 10
+    future_period = 30
+    initial_data_vol = 10000
+    OneMinMarketData.initialize_for_bot(num_term, future_period, initial_data_vol)
+    df = OneMinMarketData.generate_df()
+    print(df)
